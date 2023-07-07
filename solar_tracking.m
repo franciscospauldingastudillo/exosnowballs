@@ -2651,7 +2651,7 @@ for n=1:par.nt  %%%%%%%%%%%%%%%%%%%%%%%%%% for n = 1 or n = par.nt/2
   vtrack(:,n) = v_n(:)
   if (n==1 || n==par.nt || found_negative_h==1 || par.icelatlim==1 ...
       || par.icelatpole==1 || par.icelateq==1 ... || par.icelatstable==1)
-      save(sprintf('%s/tracking-exp-%.2d-Q-%.2d-1d-sphere-nonlinear-resnum-%.2d-eps-%.2d-%s.mat',trackingfolder_FIS,par.EBM_expnum,par.Qo,par.N,100*var1,var2),'htrack','Rtrack','vtrack');
+      save(sprintf('%s/tracking-exp-%.2d-Q-%.2d-1d-sphere-nonlinear-resnum-%.2d-eps-%.2d-%s.mat',trackingfolder_FIS,par.EBM_expnum,par.Qo,par.N,100*var1,var2),'htrack(:,1:n)','Rtrack(:,1:n)','vtrack(:,1:n)');
 
   %% -----------
   %% plot h,u,v:

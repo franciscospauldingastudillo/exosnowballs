@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function solar(var2,var5)
+function solar_tracking(var2,var5)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This script tests a variety of solar insolations in FISEBM.
 % var1 ~ epsilon (emissivity of the atmosphere)
@@ -10,15 +10,15 @@ function solar(var2,var5)
 
 %%%% Example %%%%
 % Option: epsilon
-% var1 = 0.95;
+var1 = 0.95;
 % Option: flow or no-flow
-% var2 = 'no-flow';
+var2 = 'flow';
 % Option: Nstart
-% var3 = 1;
+var3 = 1;
 % Option: Range of Solar Insolation
-% Q = 750:100:1650;
+Q = 900;
 % Option: expnum
-% var5 = 3;
+var5 = 3;
 
 % Option: Parallel Computing - FISEBM Model
 if length(Q)==1
@@ -1939,6 +1939,17 @@ nan_mask=mask;
 mask(1)=0; mask(par.nj)=0;
 nan_mask(mask==0)=NaN;
 
+% Track h, R, and v over time (FSA 2023)
+htrack = NaN(par.nj,par.nt);
+Rtrack = NaN(par.nj,par.nt);
+vtrack = NaN(par.nj,par.nt);
+
+% Create Folder to Export h, R, and v over time (FSA 2023)
+trackingfolder_FIS = '/u/scratch/f/fspauldi/exosnowballs/tracking';
+if ~exist(sprintf('%s',trackingfolder_FIS),'file')
+  [status,msg] = mkdir(sprintf('%s',trackingfolder_FIS));
+end
+
 % Load Model Variables
 [h,R,Ta,To,Ts,qa,Hcr,S_init]=FIS_read_restart(par,var1,var2);
 par.Hcr = Hcr;
@@ -2634,6 +2645,13 @@ for n=1:par.nt  %%%%%%%%%%%%%%%%%%%%%%%%%% for n = 1 or n = par.nt/2
   hplot(find(hplot==0)) = NaN;
   hplot2 = Rplot*par.Hcr;
  
+  %% Update the tracking fields and save if...
+  htrack(:,n) = h(:,2);
+  Rtrack(:,n) = R(:,2);
+  vtrack(:,n) = v_n(:)
+  if (n==1 || n==par.nt || found_negative_h==1 || par.icelatlim==1 ...
+      || par.icelatpole==1 || par.icelateq==1 ... || par.icelatstable==1)
+      save(sprintf('%s/tracking-exp-%.2d-Q-%.2d-1d-sphere-nonlinear-resnum-%.2d-eps-%.2d-%s.mat',trackingfolder_FIS,par.EBM_expnum,par.Qo,par.N,100*var1,var2),'htrack','Rtrack','vtrack');
 
   %% -----------
   %% plot h,u,v:
